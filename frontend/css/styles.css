@@ -1,0 +1,81 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f6f8;
+}
+
+/* contenedores */
+.login-container,
+.container {
+  width: 360px;
+  margin: 80px auto;
+  background: white;
+  padding: 25px;
+  border-radius: 6px;
+}
+
+/* títulos */
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* labels e inputs */
+label {
+  display: block;
+  margin-top: 10px;
+}
+
+input {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  box-sizing: border-box;
+}
+
+/* botones generales */
+button {
+  margin-top: 15px;
+  padding: 8px;
+  cursor: pointer;
+}
+
+/* fila de inputs + botón */
+.form-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.form-row input {
+  flex: 1;
+}
+
+.form-row button {
+  width: auto;
+  padding: 8px 12px;
+}
+
+/* lista */
+ul {
+  margin-top: 10px;
+  padding: 0;
+}
+
+/* cada gasto */
+li {
+  list-style: none;
+  background: #eaeaea;
+  padding: 10px;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* botón eliminar */
+li button {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+}
+
