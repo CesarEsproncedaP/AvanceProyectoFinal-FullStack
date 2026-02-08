@@ -1,43 +1,44 @@
 const API_URL = 'http://localhost:5000/api';
 
-const form = document.getElementById("loginForm");
-const msg = document.getElementById("loginMsg");
+const form = document.getElementById("registroForm");
+const msg = document.getElementById("registroMsg");
 
 form.addEventListener("submit", async function (e) {
   e.preventDefault();
 
-  const correo = document.getElementById("email").value;
-  const contrasena = document.getElementById("password").value;
+  const nombre = document.getElementById("nombre").value;
+  const correo = document.getElementById("correo").value;
+  const contrasena = document.getElementById("contrasena").value;
 
-  if (correo === "" || contrasena === "") {
+  if (nombre === "" || correo === "" || contrasena === "") {
     mostrarMensaje("Por favor completa todos los campos", "error");
     return;
   }
 
   try {
-    const respuesta = await fetch(`${API_URL}/autenticacion/login`, {
+    const respuesta = await fetch(`${API_URL}/autenticacion/registro`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ correo, contrasena })
+      body: JSON.stringify({ nombre, correo, contrasena })
     });
 
     const datos = await respuesta.json();
 
     if (respuesta.ok) {
-      // Guardar token en localStorage
+      mostrarMensaje("¡Registro exitoso! Redirigiendo...", "success");
+      
+      // Guardar token automáticamente
       localStorage.setItem('token', datos.token);
       localStorage.setItem('usuario', JSON.stringify(datos.usuario));
-      
-      mostrarMensaje("Inicio de sesión exitoso", "success");
       
       // Redirigir al dashboard
       setTimeout(() => {
         window.location.href = "dashboard.html";
-      }, 1000);
+      }, 1500);
     } else {
-      mostrarMensaje(datos.mensaje || "Credenciales incorrectas", "error");
+      mostrarMensaje(datos.mensaje || "Error al registrar usuario", "error");
     }
 
   } catch (error) {

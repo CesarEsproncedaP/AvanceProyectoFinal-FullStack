@@ -8,15 +8,101 @@
 <body>
 
   <div class="container">
-    <h2>Lista de gastos</h2>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 2px solid #e0e0e0;">
+      <div>
+        <h2 style="margin: 0;">Gestor de Gastos</h2>
+        <p style="margin: 5px 0 0 0; color: #666; font-size: 14px;">
+      👤 <span id="nombreUsuario" style="font-weight: bold;">Cargando...</span> 
+      (<span id="correoUsuario" style="color: #888;">cargando@correo.com</span>)
+      </p>
+      </div>
+      <button id="btnCerrarSesion" style="background: #dc3545; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 14px;">
+        🚪 Cerrar sesión
+      </button>
+      </div>
 
-    <div class="form-row">
-      <input type="text" id="nuevoGasto" placeholder="Descripción">
-      <input type="number" id="monto" placeholder="Monto">
-      <button id="btnAgregar">Agregar</button>
+    <div id="resumen" style="background: #e8f5e9; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+      <h3 style="margin: 0 0 10px 0;">Resumen Financiero</h3>
+      <p><strong>Total Ingresos:</strong> $<span id="totalIngresos">0.00</span></p>
+      <p><strong>Total Gastos:</strong> $<span id="totalGastos">0.00</span></p>
+      <p><strong>Saldo:</strong> $<span id="saldo">0.00</span></p>
     </div>
 
-    <ul id="listaGastos"></ul>
+    <!-- SECCIÓN DE FILTROS CON CONTADOR -->
+<div style="background: #f0f0f0; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+    <h3 style="margin: 0;">🔍 Filtrar movimientos</h3>
+    <span id="contadorFiltro" style="background: #2196F3; color: white; padding: 5px 15px; border-radius: 20px; font-size: 14px; font-weight: bold;">
+      Total: 0
+    </span>
+  </div>
+  <div style="display: flex; gap: 10px; align-items: center;">
+    <select id="filtroTipo" style="flex: 1; padding: 10px; font-size: 14px;">
+      <option value="">📋 Todos los movimientos</option>
+      <option value="ingreso">📈 Solo ingresos</option>
+      <option value="gasto">📉 Solo gastos</option>
+    </select>
+    <button id="btnLimpiarFiltros" style="background: #757575; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">
+      🔄 Mostrar todos
+    </button>
+  </div>
+  <div id="mensajeFiltro" style="margin-top: 10px; padding: 8px; background: #e3f2fd; border-left: 4px solid #2196F3; border-radius: 4px; display: none;">
+    <small style="color: #1976d2; font-weight: bold;">
+      <span id="textoFiltro"></span>
+    </small>
+  </div>
+</div>
+
+    <!-- FORMULARIO DE EDICIÓN -->
+    <div id="formularioEdicion" style="display: none; background: #fff3cd; padding: 15px; border-radius: 6px; margin-bottom: 20px; border: 2px solid #ffc107;">
+      <h3 style="margin-top: 0;">✏️ Editando movimiento</h3>
+      <input type="hidden" id="editarId">
+      <div class="form-row">
+        <select id="editarTipo" style="flex: 0.5;">
+          <option value="gasto">Gasto</option>
+          <option value="ingreso">Ingreso</option>
+        </select>
+        <input type="text" id="editarCategoria" placeholder="Categoría" style="flex: 1;">
+        <input type="number" id="editarMonto" placeholder="Monto" step="0.01" style="flex: 0.8;">
+        <input type="date" id="editarFecha" style="flex: 1;">
+      </div>
+      <input type="text" id="editarDescripcion" placeholder="Descripción (opcional)" style="width: 100%; margin-bottom: 10px; padding: 8px; box-sizing: border-box;">
+      <div style="display: flex; gap: 10px;">
+        <button id="btnGuardarEdicion" style="background: #ffc107; color: #000; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">
+          💾 Guardar cambios
+        </button>
+        <button id="btnCancelarEdicion" style="background: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">
+          ❌ Cancelar
+        </button>
+      </div>
+    </div>
+
+    <!-- FORMULARIO AGREGAR MOVIMIENTO -->
+
+    <div style="background: #f9f9f9; padding: 15px; border-radius: 6px; margin-bottom: 20px; border: 1px solid #ddd;">
+      <h3>➕ Agregar movimiento</h3>
+
+      <div class="form-row">
+        <select id="tipo" style="flex: 0.5;">
+          <option value="gasto">Gasto</option>
+          <option value="ingreso">Ingreso</option>
+        </select>
+
+        <input type="text" id="categoria" placeholder="Categoría" style="flex: 1;">
+
+        <input type="number" id="monto" placeholder="Monto" step="0.01" style="flex: 0.8;">
+
+        <input type="date" id="fecha" style="flex: 1;">
+      </div>
+
+      <input type="text" id="descripcion" placeholder="Descripción (opcional)" style="width: 100%; margin-bottom: 10px; padding: 8px; box-sizing: border-box;">
+
+      <button id="btnAgregar">➕ Agregar movimiento</button>
+    </div>
+
+
+    <h3>Lista de movimientos</h3>
+    <ul id="listaMovimientos"></ul>
   </div>
 
   <script src="js/dashboard.js"></script>

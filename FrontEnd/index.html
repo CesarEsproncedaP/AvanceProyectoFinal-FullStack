@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestor de Gastos Personales | César Espronceda y Rafael Cárdenas</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .hero-container {
+      max-width: 800px;
+      margin: 60px auto;
+      background: white;
+      padding: 50px 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .hero-container h1 {
+      font-size: 2.5em;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .hero-container .subtitle {
+      font-size: 1.2em;
+      color: #666;
+      margin-bottom: 30px;
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin: 40px 0;
+      text-align: left;
+    }
+
+    .feature {
+      background: #f9f9f9;
+      padding: 20px;
+      border-radius: 8px;
+      border-left: 4px solid #4CAF50;
+    }
+
+    .feature h3 {
+      color: #4CAF50;
+      margin-top: 0;
+      font-size: 1.1em;
+    }
+
+    .feature p {
+      color: #666;
+      font-size: 0.9em;
+      margin: 0;
+    }
+
+    .cta-buttons {
+      margin-top: 40px;
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .cta-buttons a {
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: #4CAF50;
+      color: white;
+      padding: 15px 40px;
+      border: none;
+      border-radius: 6px;
+      font-size: 1.1em;
+      cursor: pointer;
+      transition: background 0.3s;
+      display: inline-block;
+    }
+
+    .btn-primary:hover {
+      background: #45a049;
+    }
+
+    .btn-secondary {
+      background: white;
+      color: #4CAF50;
+      padding: 15px 40px;
+      border: 2px solid #4CAF50;
+      border-radius: 6px;
+      font-size: 1.1em;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: inline-block;
+    }
+
+    .btn-secondary:hover {
+      background: #4CAF50;
+      color: white;
+    }
+
+    .emoji {
+      font-size: 3em;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="hero-container">
+    <div class="emoji">💰💸</div>
+    <h1>Gestor de Gastos Personales</h1>
+    <p class="subtitle">Te ayudamos a controlar tus finanzas de manera fácil y segura</p>
+
+    <div class="features">
+      <div class="feature">
+        <h3>📈📉 Control Total</h3>
+        <p>Visualiza tus ingresos y gastos en tiempo real.</p>
+      </div>
+      <div class="feature">
+        <h3>🔐 Seguro</h3>
+        <p>Tus datos están protegidos con autenticación JWT y encriptación.</p>
+      </div>
+      <div class="feature">
+        <h3>💻📱 Fácil de usar</h3>
+        <p>Interfaz intuitiva para registrar movimientos en segundos.</p>
+      </div>
+      <div class="feature">
+        <h3>📋 Resumen Financiero</h3>
+        <p>Conoce tu saldo actual, total de ingresos y gastos al instante.</p>
+      </div>
+    </div>
+
+    <div class="cta-buttons">
+      <a href="registro.html">
+        <button class="btn-primary">Crear cuenta</button>
+      </a>
+      <a href="login.html">
+        <button class="btn-secondary">Iniciar sesión</button>
+      </a>
+    </div>
+
+    <p style="margin-top: 40px; color: #999; font-size: 0.9em;">
+      Desarrollado por César Espronceda & Rafael Cárdenas | Materia: Full Stack | Docente: Ing Paco Gómez Rubio
+    </p>
+  </div>
+
+</body>
+</html>
