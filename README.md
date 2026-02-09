@@ -74,9 +74,12 @@ JWT_SECRET=AvanceCesar&Rafa
 Desde la carpeta principal del proyecto:
 ```
 cd BackEnd
-npm install
+npm install express mysql2 jsonwebtoken bcryptjs cors dotenv
 ```
-Este comando instala todas las librerías necesarias para el servidor.
+Instalar nodemon como dependencia de desarrollo:
+```
+npm install --save-dev nodemon
+```
 
 ## 4. Ejecutar el sistema e Iniciar Backend
 En la terminal:
