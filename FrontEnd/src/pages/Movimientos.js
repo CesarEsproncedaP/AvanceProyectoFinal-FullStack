@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { transactionService } from '../services/api.service';
-import { useAuth } from '../context/AuthContext';
 import './Movimientos.css';
 
 // Página de movimientos
@@ -21,13 +20,8 @@ const Movimientos = () => {
   const [editando, setEditando] = useState(null);
   const [formularioEdit, setFormularioEdit] = useState({});
 
-  // Se cargan los movimientos al montar o cuando cambian los filtros/página
-  useEffect(() => {
-    cargarMovimientos();
-  }, [filtros, paginacion.paginaActual]);
-
   // Función para cargar movimientos
-  const cargarMovimientos = async () => {
+  const cargarMovimientos = useCallback(async () => {
     try {
       setCargando(true);
       const respuesta = await transactionService.obtenerMovimientos(
@@ -48,7 +42,12 @@ const Movimientos = () => {
     } finally {
       setCargando(false);
     }
-  };
+  }, [filtros, paginacion.paginaActual]);
+
+  // Se cargan los movimientos al montar o cuando cambian los filtros/página
+  useEffect(() => {
+    cargarMovimientos();
+  }, [cargarMovimientos]);
 
   // Función para eliminar un movimiento
   const eliminarMovimiento = async (id) => {

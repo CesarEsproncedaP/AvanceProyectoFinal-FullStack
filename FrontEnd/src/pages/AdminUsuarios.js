@@ -11,7 +11,7 @@ const AdminUsuarios = () => {
 
   useEffect(() => {
     if (esAdmin()) cargarUsuarios();
-  }, []);
+  }, [esAdmin]);
 
   const cargarUsuarios = async () => {
     try {
