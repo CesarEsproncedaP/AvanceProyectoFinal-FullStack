@@ -29,6 +29,10 @@ app.use('/api/autenticacion', rutasAutenticacion);
 // Rutas de movimientos
 app.use('/api/movimientos', rutasMovimientos);
 
+// Rutas de usuarios (sólo administradores)
+const rutasUsuarios = require('./routes/users');
+app.use('/api/usuarios', rutasUsuarios);
+
 // Ruta principal para probar que funciona
 app.get('/', (req, res) => {
   res.json({ 

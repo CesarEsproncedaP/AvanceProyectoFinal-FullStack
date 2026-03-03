@@ -1,0 +1,131 @@
+.dashboard {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.dashboard h1 {
+  text-align: center;
+  color: #2c3e50;
+  margin-bottom: 2rem;
+  font-size: 2rem;
+}
+
+.resumen-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.resumen-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  border-left: 5px solid;
+  transition: transform 0.3s;
+}
+
+.resumen-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.resumen-card h3 {
+  color: #555;
+  margin: 0;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.resumen-card .cantidad {
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 1rem 0 0 0;
+}
+
+.resumen-card.ingresos {
+  border-left-color: #27ae60;
+}
+
+.resumen-card.ingresos .cantidad {
+  color: #27ae60;
+}
+
+.resumen-card.gastos {
+  border-left-color: #e74c3c;
+}
+
+.resumen-card.gastos .cantidad {
+  color: #e74c3c;
+}
+
+.resumen-card.saldo {
+  border-left-color: #3498db;
+}
+
+.resumen-card.saldo.positivo .cantidad {
+  color: #27ae60;
+}
+
+.resumen-card.saldo.negativo .cantidad {
+  color: #e74c3c;
+}
+
+.dashboard-info {
+  background: white;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-info h2 {
+  color: #2c3e50;
+  margin-top: 0;
+}
+
+.dashboard-info p {
+  color: #666;
+  line-height: 1.6;
+  font-size: 1.05rem;
+}
+
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 1rem;
+  border-radius: 5px;
+  margin-bottom: 1rem;
+  border-left: 4px solid #f5c6cb;
+}
+
+.grafico-container {
+  max-width: 500px;
+  margin: 0 auto 2rem auto;
+}
+
+.grafico-linea {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+  max-width: 900px;
+  margin: 0 auto 2rem auto;
+}
+
+@media (max-width: 768px) {
+  .dashboard {
+    padding: 1rem;
+  }
+
+  .dashboard h1 {
+    font-size: 1.5rem;
+  }
+
+  .resumen-container {
+    grid-template-columns: 1fr;
+  }
+}

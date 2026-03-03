@@ -1,0 +1,38 @@
+# Dependencias
+node_modules/
+npm-debug.log*
+yarn-error.log*
+package-lock.json
+
+# Construcción y dist
+build/
+dist/
+
+# IDEs y editores
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# Variables de entorno (NUNCA git)
+.env
+.env.local
+
+# Testing
+coverage/
+.nyc_output/
+
+# Archivos del sistema
+Thumbs.db
+.DS_Store
+
+# Cache
+.cache/
+.next/
+.parcel-cache/

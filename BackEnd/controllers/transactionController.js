@@ -1,39 +1,63 @@
 const bd = require('../config/db');
 
-// Obtener todos los movimientos del usuario.
+// Se obtienen todos los movimientos del usuario.
 exports.obtenerMovimientos = async (req, res) => {
   try {
     const idUsuario = req.usuario.idUsuario;
-    const { tipo, categoria } = req.query; 
+    const { tipo, categoria, page = 1, limit = 10 } = req.query;
+
+    // Convertimos page y limit a números
+    const pageNum = Math.max(1, parseInt(page) || 1);
+    const limitNum = Math.max(1, Math.min(100, parseInt(limit) || 10));
+    const offset = (pageNum - 1) * limitNum;
 
     // Consultamos la base
     let query = 'SELECT * FROM movimientos WHERE usuario_id = ?';
+    let queryCount = 'SELECT COUNT(*) as total FROM movimientos WHERE usuario_id = ?';
     const params = [idUsuario];
 
-    // Si viene filtro por tipo, se agrega.
+    // Se pone si es filtro por ingreso o gasto agregandose a la consulta.
     if (tipo && (tipo === 'ingreso' || tipo === 'gasto')) {
       query += ' AND tipo = ?';
+      queryCount += ' AND tipo = ?';
       params.push(tipo);
     }
 
      // Si viene filtro por categoria se agrega.
     if (categoria && categoria.trim() !== '') {
       query += ' AND categoria LIKE ?';
+      queryCount += ' AND categoria LIKE ?';
       params.push(`%${categoria}%`);
     }
 
-    query += ' ORDER BY fecha DESC';
+    query += ' ORDER BY fecha DESC LIMIT ? OFFSET ?';
 
     console.log('📝 Query SQL:', query);
     console.log('📝 Params:', params);
 
-    // Se ejecuta la consulta
-    const [movimientos] = await bd.query(query, params);
+    // Se ejecutan las consultas
+    const [movimientos] = await bd.query(query, [...params, limitNum, offset]);
+    const [resultadoTotal] = await bd.query(queryCount, params);
+    const totalRegistros = resultadoTotal[0].total;
+    const totalPaginas = Math.ceil(totalRegistros / limitNum);
+
+    // Convertimos el campo monto a número para evitar strings
+    movimientos.forEach(m => {
+      if (m.monto !== undefined && m.monto !== null) {
+        m.monto = parseFloat(m.monto);
+      }
+    });
 
     console.log(`✅ Movimientos encontrados: ${movimientos.length}`);
 
     res.json({
       exito: true,
+      paginacion: {
+        paginaActual: pageNum,
+        registrosPorPagina: limitNum,
+        totalRegistros: totalRegistros,
+        totalPaginas: totalPaginas
+      },
       cantidad: movimientos.length,
       datos: movimientos
     });
@@ -59,9 +83,15 @@ exports.obtenerMovimientoPorId = async (req, res) => {
       return res.status(404).json({ mensaje: 'Movimiento no encontrado' });
     }
 
+    // convertimos monto
+    const mov = movimientos[0];
+    if (mov.monto !== undefined && mov.monto !== null) {
+      mov.monto = parseFloat(mov.monto);
+    }
+
     res.json({
       exito: true,
-      datos: movimientos[0]
+      datos: mov
     });
 
   } catch (error) {
@@ -105,7 +135,7 @@ exports.crearMovimiento = async (req, res) => {
         usuario_id: idUsuario,
         tipo,
         categoria,
-        monto,
+        monto: parseFloat(monto),
         descripcion,
         fecha
       }
@@ -122,8 +152,28 @@ exports.actualizarMovimiento = async (req, res) => {
   try {
     const idUsuario = req.usuario.idUsuario;
     const idMovimiento = req.params.id;
-    const { tipo, categoria, monto, descripcion, fecha } = req.body;
+    let { tipo, categoria, monto, descripcion, fecha } = req.body;
 
+    // Convertimos la fecha al formato YYYY-MM-DD
+    if (fecha && fecha.includes('T')) {
+      fecha = fecha.split('T')[0];
+    }
+
+    // Validamos que los campos obligatorios estén presentes
+    if (!tipo || !categoria || !monto || !fecha) {
+      return res.status(400).json({ 
+        mensaje: 'Los campos tipo, categoría, monto y fecha son obligatorios' 
+      });
+    }
+
+    // Validamos que el tipo esté correcto
+    if (tipo !== 'ingreso' && tipo !== 'gasto') {
+      return res.status(400).json({ 
+        mensaje: 'El tipo debe ser "ingreso" o "gasto"' 
+      });
+    }
+
+    // Verificamos que el movimiento exista y pertenezca al usuario
     const [movimientoExistente] = await bd.query(
       'SELECT * FROM movimientos WHERE id = ? AND usuario_id = ?',
       [idMovimiento, idUsuario]
@@ -135,7 +185,7 @@ exports.actualizarMovimiento = async (req, res) => {
 
     await bd.query(
       'UPDATE movimientos SET tipo = ?, categoria = ?, monto = ?, descripcion = ?, fecha = ? WHERE id = ? AND usuario_id = ?',
-      [tipo, categoria, monto, descripcion, fecha, idMovimiento, idUsuario]
+      [tipo, categoria, parseFloat(monto), descripcion || '', fecha, idMovimiento, idUsuario]
     );
 
     res.json({
@@ -144,7 +194,7 @@ exports.actualizarMovimiento = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(error);
+    console.error('Error en actualizarMovimiento:', error);
     res.status(500).json({ mensaje: 'Error al actualizar el movimiento' });
   }
 };
@@ -210,5 +260,64 @@ exports.obtenerResumen = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ mensaje: 'Error al obtener el resumen' });
+  }
+};
+
+// Obtener estadísticas para gráficos (saldo acumulado y totales mensuales)
+exports.obtenerEstadisticas = async (req, res) => {
+  try {
+    const idUsuario = req.usuario.idUsuario;
+
+    // Traemos todas las filas necesarias ordenadas por fecha asc
+    const [filas] = await bd.query(
+      'SELECT fecha, tipo, monto FROM movimientos WHERE usuario_id = ? ORDER BY fecha ASC',
+      [idUsuario]
+    );
+
+    // Convertir monto a número y normalizar fecha (YYYY-MM-DD)
+    const filasProcesadas = filas.map(r => ({
+      fecha: new Date(r.fecha).toISOString().slice(0,10),
+      tipo: r.tipo,
+      monto: parseFloat(r.monto) || 0
+    }));
+
+    // Construir saldo acumulado por movimiento (sube/baja por cada movimiento)
+    const cumulativo = [];
+    let saldoAcumulado = 0;
+    filasProcesadas.forEach((r, idx) => {
+      // aplicar ingreso o gasto al acumulado
+      saldoAcumulado += (r.tipo === 'ingreso' ? r.monto : -Math.abs(r.monto));
+      // usar fecha y un índice para evitar etiquetas idénticas si hay múltiples movimientos el mismo día
+      const label = `${r.fecha}${filasProcesadas.length > 1 ? ` ${idx+1}` : ''}`;
+      cumulativo.push({ fecha: label, saldo: +saldoAcumulado.toFixed(2) });
+    });
+
+    // Agregar por mes (YYYY-MM) para barras: ingresos y gastos por mes
+    const porMes = {};
+    filasProcesadas.forEach(r => {
+      const mes = r.fecha.slice(0,7); // YYYY-MM
+      if (!porMes[mes]) porMes[mes] = { ingresos: 0, gastos: 0 };
+      if (r.tipo === 'ingreso') porMes[mes].ingresos += r.monto;
+      else porMes[mes].gastos += r.monto;
+    });
+
+    const mesesOrdenados = Object.keys(porMes).sort();
+    const mensual = {
+      labels: mesesOrdenados,
+      ingresos: mesesOrdenados.map(m => +porMes[m].ingresos.toFixed(2)),
+      gastos: mesesOrdenados.map(m => +porMes[m].gastos.toFixed(2))
+    };
+
+    res.json({
+      exito: true,
+      datos: {
+        cumulativo,
+        mensual
+      }
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ mensaje: 'Error al obtener estadísticas' });
   }
 };

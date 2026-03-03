@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const bd = require('../config/db');
 
 // Registrar nuevo usuario
+// Valida datos, encripta la contraseña y crea un token con rol 'user'.
 exports.registrarUsuario = async (req, res) => {
   try {
     
@@ -28,15 +29,15 @@ exports.registrarUsuario = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const contrasenaEncriptada = await bcrypt.hash(contrasena, salt);
 
-    // Guardamos el usuario en la base de datos
+    // Guardamos el usuario en la base de datos con rol de "usuario" por defecto.
     const [resultado] = await bd.query(
-      'INSERT INTO usuarios (nombre, correo, contrasena) VALUES (?, ?, ?)',
-      [nombre, correo, contrasenaEncriptada]
+      'INSERT INTO usuarios (nombre, correo, contrasena, rol) VALUES (?, ?, ?, ?)',
+      [nombre, correo, contrasenaEncriptada, 'user']
     );
 
-    // Creamos un token para el login
+    // Creamos un token para el login con el rol.
     const token = jwt.sign(
-      { idUsuario: resultado.insertId, correo },
+      { idUsuario: resultado.insertId, correo, rol: 'user' },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -47,7 +48,8 @@ exports.registrarUsuario = async (req, res) => {
       usuario: {
         id: resultado.insertId,
         nombre,
-        correo
+        correo,
+        rol: 'user'
       }
     });
 
@@ -57,7 +59,7 @@ exports.registrarUsuario = async (req, res) => {
   }
 };
 
-// Iniciar sesión
+// Iniciar sesión en donde se validan credenciales.
 exports.iniciarSesion = async (req, res) => {
   try {
     const { correo, contrasena } = req.body;
@@ -84,7 +86,7 @@ exports.iniciarSesion = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { idUsuario: usuario.id, correo: usuario.correo },
+      { idUsuario: usuario.id, correo: usuario.correo, rol: usuario.rol || 'user' },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -95,12 +97,37 @@ exports.iniciarSesion = async (req, res) => {
       usuario: {
         id: usuario.id,
         nombre: usuario.nombre,
-        correo: usuario.correo
+        correo: usuario.correo,
+        rol: usuario.rol || 'user'
       }
     });
-
   } catch (error) {
     console.error(error);
     res.status(500).json({ mensaje: 'Error al iniciar sesión' });
+  }
+};
+
+// Se obtiene una lista de todos los"admin".
+exports.obtenerUsuarios = async (req, res) => {
+  try {
+    const [usuarios] = await bd.query(
+      'SELECT id, nombre, correo, rol FROM usuarios'
+    );
+    res.json({ exito: true, usuarios });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ mensaje: 'Error al obtener usuarios' });
+  }
+};
+
+// Se eliminan los usuarios por id, al igual se eliminan sus movimientos por defecto, esto solo lo puede hacer un admin.
+exports.eliminarUsuario = async (req, res) => {
+  try {
+    const idUsuario = req.params.id;
+    await bd.query('DELETE FROM usuarios WHERE id = ?', [idUsuario]);
+    res.json({ exito: true, mensaje: 'Usuario eliminado correctamente' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ mensaje: 'Error al eliminar el usuario' });
   }
 };
